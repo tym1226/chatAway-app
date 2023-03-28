@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import colors from "../../constants/colors";
+import colors from "../constants/colors";
 import PageContainer from "../components/PageContainer";
 import SignInForm from "../components/SignInForm";
 import SignUpForm from "../components/SignUpForm";

@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 
 import backgroundImage from "../../assets/images/chatBackground.jpg";
-import colors from "../../constants/colors";
+import colors from "../constants/colors";
 
 const ChatScreen = (props) => {
   const [messageText, setMessageText] = useState("");

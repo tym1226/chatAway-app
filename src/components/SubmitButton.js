@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity, Text } from "react-native";
-import colors from "../../constants/colors";
+import colors from "../constants/colors";
 
 const SubmitButton = (props) => {
   const enabledBgColor = props.color || colors.primaryColor;
