@@ -13,6 +13,10 @@ const initialState = {
     email: false,
     password: false,
   },
+  inputValues: {
+    email: "",
+    password: "",
+  },
   formIsValid: false,
 };
 
@@ -22,7 +26,7 @@ const SignInForm = (props) => {
   const inputChangedHandler = useCallback(
     (inputId, inputValue) => {
       const result = validateInput(inputId, inputValue);
-      dispatchFormState({ inputId, validationResult: result });
+      dispatchFormState({ inputId, validationResult: result, inputValue });
     },
     [dispatchFormState]
   );
