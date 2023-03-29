@@ -1,27 +1,37 @@
 import { getFirebaseApp } from "../firebaseHelper";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { child, getDatabase, ref, set } from "firebase/database";
+import { authenticate } from "../../store/authSlice";
 
-export const signup = async (firstName, lastName, email, password) => {
-  const app = getFirebaseApp();
-  const auth = getAuth(app);
+export const signup = (firstName, lastName, email, password) => {
+  return async (dispatch) => {
+    const app = getFirebaseApp();
+    const auth = getAuth(app);
 
-  try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    const { uid } = result.user;
+    try {
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const { uid, stsTokenManager } = result.user;
+      const { accessToken } = stsTokenManager;
 
-    const userData = await createUser(firstName, lastName, email, uid);
-  } catch (err) {
-    console.log(err);
-    const errorCode = err.code;
+      const userData = await createUser(firstName, lastName, email, uid);
 
-    let message = "Something went wrong.";
+      dispatch(authenticate({ token: accessToken, userData }));
+    } catch (err) {
+      console.log(err);
+      const errorCode = err.code;
 
-    if (errorCode === "auth/email-already-in-use") {
-      message = "This email is already in use";
+      let message = "Something went wrong.";
+
+      if (errorCode === "auth/email-already-in-use") {
+        message = "This email is already in use";
+      }
+      throw new Error(message);
     }
-    throw new Error(message);
-  }
+  };
 };
 
 const createUser = async (firstName, lastName, email, userId) => {

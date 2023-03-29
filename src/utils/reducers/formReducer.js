@@ -13,7 +13,7 @@ export const reducer = (state, action) => {
 
   let updatedFormIsValid = true;
   for (const key in updatedValidities) {
-    if (updatedValidities[key] != undefined) {
+    if (updatedValidities[key] !== undefined) {
       updatedFormIsValid = false;
       break;
     }
