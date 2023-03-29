@@ -1,7 +1,16 @@
-import { getFirebaseApp } from "../firebaseHelper";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { child, getDatabase, ref, set } from "firebase/database";
-import { authenticate } from "../../store/authSlice";
+
+import { getFirebaseApp } from "../firebaseHelper";
+import { authenticate, logout } from "../../store/authSlice";
+import { getUserData } from "./userActions";
+
+let timer;
 
 export const signup = (firstName, lastName, email, password) => {
   return async (dispatch) => {
@@ -15,11 +24,20 @@ export const signup = (firstName, lastName, email, password) => {
         password
       );
       const { uid, stsTokenManager } = result.user;
-      const { accessToken } = stsTokenManager;
+      const { accessToken, expirationTime } = stsTokenManager;
+
+      const expiryDate = new Date(expirationTime);
+      const timeNow = new Date();
+      const millisecondsUntilExpiry = expiryDate - timeNow;
 
       const userData = await createUser(firstName, lastName, email, uid);
 
       dispatch(authenticate({ token: accessToken, userData }));
+      saveDataToStorage(accessToken, uid, expiryDate);
+
+      timer = setTimeout(() => {
+        dispatch(userLogout());
+      }, millisecondsUntilExpiry);
     } catch (err) {
       console.log(err);
       const errorCode = err.code;
@@ -49,4 +67,62 @@ const createUser = async (firstName, lastName, email, userId) => {
   const childRef = child(dbRef, `users/${userId}`);
   await set(childRef, userData);
   return userData;
+};
+
+const saveDataToStorage = (token, userId, expiryDate) => {
+  AsyncStorage.setItem(
+    "userData",
+    JSON.stringify({
+      token,
+      userId,
+      expiryDate: expiryDate.toISOString(),
+    })
+  );
+};
+
+export const signin = (email, password) => {
+  return async (dispatch) => {
+    const app = getFirebaseApp();
+    const auth = getAuth(app);
+
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const { uid, stsTokenManager } = result.user;
+      const { accessToken, expirationTime } = stsTokenManager;
+
+      const expiryDate = new Date(expirationTime);
+      const timeNow = new Date();
+      const millisecondsUntilExpiry = expiryDate - timeNow;
+
+      const userData = await getUserData(uid);
+
+      dispatch(authenticate({ token: accessToken, userData }));
+      saveDataToStorage(accessToken, uid, expiryDate);
+
+      timer = setTimeout(() => {
+        dispatch(userLogout());
+      }, millisecondsUntilExpiry);
+    } catch (err) {
+      console.log(err);
+      const errorCode = err.code;
+
+      let message = "Something went wrong.";
+
+      if (
+        errorCode === "auth/user-not-found" ||
+        errorCode === "auth/wrong-password"
+      ) {
+        message = "The username or password was incorrect.";
+      }
+      throw new Error(message);
+    }
+  };
+};
+
+export const userLogout = () => {
+  return async (dispatch) => {
+    AsyncStorage.clear();
+    clearTimeout(timer);
+    dispatch(logout());
+  };
 };

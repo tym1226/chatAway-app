@@ -1,15 +1,17 @@
-import React, { useReducer, useCallback } from "react";
+import React, { useReducer, useCallback, useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
+import { ActivityIndicator, Alert } from "react-native";
+import { useDispatch } from "react-redux";
 
 import Input from "./Input";
 import SubmitButton from "./SubmitButton";
 import { validateInput } from "../utils/actions/formActions";
 import { reducer } from "../utils/reducers/formReducer";
+import { signin } from "../utils/actions/authActions";
+import colors from "../constants/colors";
 
 const initialState = {
   inputValidities: {
-    firstName: false,
-    lastName: false,
     email: false,
     password: false,
   },
@@ -21,6 +23,10 @@ const initialState = {
 };
 
 const SignInForm = (props) => {
+  const dispatch = useDispatch();
+
+  const [error, setError] = useState();
+  const [isLoading, setIsLoading] = useState(false);
   const [formState, dispatchFormState] = useReducer(reducer, initialState);
 
   const inputChangedHandler = useCallback(
@@ -30,6 +36,30 @@ const SignInForm = (props) => {
     },
     [dispatchFormState]
   );
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert("An error occurred", error, [{ text: "Got it" }]);
+    }
+    setError(null);
+  }, [error]);
+
+  const authHandler = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      const action = signin(
+        formState.inputValues.email,
+        formState.inputValues.password
+      );
+
+      setError(null);
+      await dispatch(action);
+    } catch (err) {
+      setError(err.message);
+      setIsLoading(false);
+    }
+  }, [dispatch, formState]);
 
   return (
     <>
@@ -55,12 +85,20 @@ const SignInForm = (props) => {
         onInputChanged={inputChangedHandler}
         errorText={formState.inputValidities["password"]}
       />
-      <SubmitButton
-        disabled={!formState.formIsValid}
-        title="SIGN IN"
-        onPress={() => console.log("button pressed")}
-        style={{ marginTop: 20 }}
-      />
+      {isLoading ? (
+        <ActivityIndicator
+          size={"small"}
+          color={colors.primaryColor}
+          style={{ marginTop: 10 }}
+        />
+      ) : (
+        <SubmitButton
+          title="SIGN IN"
+          onPress={authHandler}
+          style={{ marginTop: 20 }}
+          disabled={!formState.formIsValid}
+        />
+      )}
     </>
   );
 };

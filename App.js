@@ -7,6 +7,10 @@ import * as Font from "expo-font";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { Provider } from "react-redux";
 import { store } from "./src/store/store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// temparirily used to force sign out
+// AsyncStorage.clear();
 
 SplashScreen.preventAutoHideAsync();
 
