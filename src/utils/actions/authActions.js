@@ -4,7 +4,7 @@ import {
   getAuth,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { child, getDatabase, ref, set } from "firebase/database";
+import { child, getDatabase, ref, set, update } from "firebase/database";
 
 import { getFirebaseApp } from "../firebaseHelper";
 import { authenticate, logout } from "../../store/authSlice";
@@ -125,4 +125,14 @@ export const userLogout = () => {
     clearTimeout(timer);
     dispatch(logout());
   };
+};
+
+export const updateSignedInUserData = async (userId, newData) => {
+  if (newData.firstName && newData.lastName) {
+    const firstLast = `${newData.firstName} ${newData.lastName}`.toLowerCase();
+    newData.firstLast = firstLast;
+  }
+  const dbRef = ref(getDatabase());
+  const childRef = child(dbRef, `users/${userId}`);
+  await update(childRef, newData);
 };
