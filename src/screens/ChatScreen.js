@@ -16,13 +16,31 @@ import { Feather } from "@expo/vector-icons";
 import backgroundImage from "../../assets/images/chatBackground.jpg";
 import colors from "../constants/colors";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 const ChatScreen = (props) => {
   const storedUsers = useSelector((state) => state.users.storedUsers);
-  console.log(storedUsers);
+  const userData = useSelector((state) => state.auth.userData);
+
+  const [chatUsers, setChatUsers] = useState([]);
   const [messageText, setMessageText] = useState("");
 
   const chatData = props.route?.params?.newChatData;
+
+  const getChatTitleFromName = () => {
+    const otherUserId = chatUsers.find((uid) => uid !== userData.userId);
+    const otherUserData = storedUsers[otherUserId];
+    return (
+      otherUserData && `${otherUserData.firstName} ${otherUserData.lastName}`
+    );
+  };
+
+  useEffect(() => {
+    props.navigation.setOptions({
+      headerTitle: getChatTitleFromName(),
+    });
+    setChatUsers(chatData.users);
+  }, [chatUsers]);
 
   const sendMessage = useCallback(() => {
     setMessageText("");
