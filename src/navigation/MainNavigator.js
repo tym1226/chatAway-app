@@ -1,84 +1,28 @@
+import { child, getDatabase, onValue, ref } from "firebase/database";
 import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { getFirebaseApp } from "../utils/firebaseHelper";
 
-import ChatListScreen from "../screens/ChatListScreen";
-import ChatSettingsScreen from "../screens/ChatSettingsScreen";
-import SettingsScreen from "../screens/SettingsScreen";
-import ChatScreen from "../screens/ChatScreen";
-import NewChatScreen from "../screens/NewChatScreen";
-
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
-
-const TabNaigator = () => {
-  return (
-    <Tab.Navigator
-      screenOptions={{ headerTitle: "", headerShadowVisible: false }}
-    >
-      <Tab.Screen
-        name="ChatList"
-        component={ChatListScreen}
-        options={{
-          tabBarLabel: "Chats",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="chatbubble-ellipses-outline"
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{
-          tabBarLabel: "Settings",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
-  );
-};
+import StackNavigator from "./StackNavigator";
 
 const MainNavigator = (props) => {
-  return (
-    <Stack.Navigator>
-      <Stack.Group>
-        <Stack.Screen
-          name="Home"
-          component={TabNaigator}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="ChatScreen"
-          component={ChatScreen}
-          options={{
-            headerTitle: "",
-            headerBackTitle: "Back",
-          }}
-        />
-        <Stack.Screen
-          name="ChatSettings"
-          component={ChatSettingsScreen}
-          options={{
-            headerTitle: "Settings",
-            headerBackTitle: "Back",
-          }}
-        />
-      </Stack.Group>
+  const userData = useSelector((state) => state.auth.userData);
+  const storedUsers = useSelector((state) => state.users.storedUsers);
 
-      <Stack.Group screenOptions={{ presentation: "containedModal" }}>
-        <Stack.Screen name="NewChat" component={NewChatScreen} />
-      </Stack.Group>
-    </Stack.Navigator>
-  );
+  useEffect(() => {
+    const app = getFirebaseApp();
+    const dbRef = ref(getDatabase(app));
+    const userChatRef = child(dbRef, `userChats/${userData.userId}`);
+
+    onValue(userChatRef, (querySnapshot) => {
+      const chatIdsData = querySnapshot.val() || {};
+      const chatIds = Object.values(chatIdsData);
+      console.log(chatIds);
+    });
+  }, []);
+
+  return <StackNavigator />;
 };
 
 export default MainNavigator;
