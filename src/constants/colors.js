@@ -6,4 +6,5 @@ export default {
   textColor: "#1c1e21",
   primaryColor: "#32d48e",
   red: "#e74c3c",
+  extraLightGray: "#ededed",
 };

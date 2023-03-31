@@ -22,6 +22,8 @@ const ProfileImage = (props) => {
   const [image, setImage] = useState(source);
   const [isLoading, setIsLoading] = useState(false);
 
+  const showEditButton = props.showEditButton && props.showEditButton === true;
+
   const userId = props.userId;
 
   const pickImage = async () => {
@@ -43,7 +45,7 @@ const ProfileImage = (props) => {
 
       const newData = { profilePicture: uploadUrl };
 
-      await updateSignedInUserData(userId, { newData });
+      await updateSignedInUserData(userId, newData);
       dispatch(updateLoggedInUserData({ newData }));
 
       // set the image as profile picture
@@ -53,8 +55,11 @@ const ProfileImage = (props) => {
       setIsLoading(false);
     }
   };
+
+  const Container = showEditButton ? TouchableOpacity : View;
+
   return (
-    <TouchableOpacity onPress={pickImage}>
+    <Container onPress={pickImage}>
       {isLoading ? (
         <View
           height={props.size}
@@ -72,11 +77,12 @@ const ProfileImage = (props) => {
           }}
         />
       )}
-
-      <View style={styles.iconContainer}>
-        <FontAwesome name="pencil" size={18} color="black" />
-      </View>
-    </TouchableOpacity>
+      {showEditButton && !isLoading && (
+        <View style={styles.iconContainer}>
+          <FontAwesome name="pencil" size={18} color="black" />
+        </View>
+      )}
+    </Container>
   );
 };
 
