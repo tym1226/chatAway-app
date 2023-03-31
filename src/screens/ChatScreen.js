@@ -10,14 +10,17 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 import { Feather } from "@expo/vector-icons";
 
 import backgroundImage from "../../assets/images/chatBackground.jpg";
 import colors from "../constants/colors";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
+
 import PageContainer from "../components/PageContainer";
+import Bubble from "../components/Bubble";
+import { createChat } from "../utils/actions/chatActions";
 
 const ChatScreen = (props) => {
   const storedUsers = useSelector((state) => state.users.storedUsers);
@@ -25,6 +28,7 @@ const ChatScreen = (props) => {
 
   const [chatUsers, setChatUsers] = useState([]);
   const [messageText, setMessageText] = useState("");
+  const [chatId, setChatId] = useState(props.route?.params?.chatId);
 
   const chatData = props.route?.params?.newChatData;
 
@@ -43,9 +47,19 @@ const ChatScreen = (props) => {
     setChatUsers(chatData.users);
   }, [chatUsers]);
 
-  const sendMessage = useCallback(() => {
+  const sendMessage = useCallback(async () => {
+    try {
+      let id = chatId;
+      if (!id) {
+        id = await createChat(
+          userData.userId,
+          props.route?.params?.newChatData
+        );
+        setChatId(id);
+      }
+    } catch (err) {}
     setMessageText("");
-  }, [messageText]);
+  }, [messageText, chatId]);
 
   return (
     <SafeAreaView edges={["right", "left", "bottom"]} style={styles.container}>
@@ -59,7 +73,11 @@ const ChatScreen = (props) => {
           source={backgroundImage}
           style={styles.backgroundImage}
         >
-          <PageContainer style={{ backgroundColor: "transparent" }} />
+          <PageContainer style={{ backgroundColor: "transparent" }}>
+            {!chatId && (
+              <Bubble type="system" text="This is a new chat. Say hi!" />
+            )}
+          </PageContainer>
         </ImageBackground>
 
         <View style={styles.inputContainer}>

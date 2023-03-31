@@ -7,4 +7,7 @@ export default {
   primaryColor: "#32d48e",
   red: "#e74c3c",
   extraLightGray: "#ededed",
+  whiteBackground: "#e2dacc",
+  biege: "#fef5c3",
+  darkGray: "#65644A",
 };
