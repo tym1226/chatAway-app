@@ -8,7 +8,6 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 18,
     flex: 1,
-    backgroundColor: "white",
   },
 });
 

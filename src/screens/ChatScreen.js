@@ -17,6 +17,7 @@ import backgroundImage from "../../assets/images/chatBackground.jpg";
 import colors from "../constants/colors";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
+import PageContainer from "../components/PageContainer";
 
 const ChatScreen = (props) => {
   const storedUsers = useSelector((state) => state.users.storedUsers);
@@ -57,7 +58,9 @@ const ChatScreen = (props) => {
         <ImageBackground
           source={backgroundImage}
           style={styles.backgroundImage}
-        ></ImageBackground>
+        >
+          <PageContainer style={{ backgroundColor: "transparent" }} />
+        </ImageBackground>
 
         <View style={styles.inputContainer}>
           <TouchableOpacity
