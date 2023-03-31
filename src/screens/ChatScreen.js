@@ -20,7 +20,7 @@ import colors from "../constants/colors";
 
 import PageContainer from "../components/PageContainer";
 import Bubble from "../components/Bubble";
-import { createChat } from "../utils/actions/chatActions";
+import { createChat, sendTextMessage } from "../utils/actions/chatActions";
 
 const ChatScreen = (props) => {
   const storedUsers = useSelector((state) => state.users.storedUsers);
@@ -59,7 +59,11 @@ const ChatScreen = (props) => {
         );
         setChatId(id);
       }
-    } catch (err) {}
+
+      await sendTextMessage(chatId, userData.userId, messageText);
+    } catch (err) {
+      console.log(err);
+    }
     setMessageText("");
   }, [messageText, chatId]);
 
