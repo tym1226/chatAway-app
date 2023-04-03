@@ -13,9 +13,10 @@ import MenuItem from "./MenuItem";
 import { favoriteMessage } from "../utils/actions/chatActions";
 import { useSelector } from "react-redux";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
+import FormatDate from "./formatDate";
 
 const Bubble = (props) => {
-  const { text, type, messageId, chatId, userId } = props;
+  const { text, type, messageId, chatId, userId, date } = props;
 
   const favoriteMessages = useSelector(
     (state) => state.messages.favoriteMessages[chatId] ?? {}
@@ -31,6 +32,7 @@ const Bubble = (props) => {
 
   let Container = View;
   let isUserMessage = false;
+  const dateString = FormatDate(date);
 
   switch (type) {
     case "system":
@@ -88,13 +90,19 @@ const Bubble = (props) => {
         <View style={bubbleStyle}>
           <Text style={textStyle}>{text}</Text>
 
-          {
+          {dateString && (
             <View style={styles.timeContainer}>
               {isFavorite && (
-                <AntDesign name="star" size={14} color={colors.textColor} />
+                <AntDesign
+                  name="star"
+                  size={12}
+                  color={colors.gray}
+                  style={{ marginRight: 5 }}
+                />
               )}
+              <Text style={styles.time}>{dateString}</Text>
             </View>
-          }
+          )}
 
           <Menu name={menuId.current} ref={menuRef}>
             <MenuTrigger />
@@ -111,7 +119,7 @@ const Bubble = (props) => {
                 iconName={isFavorite ? "star" : "staro"}
               />
               <MenuItem
-                text="Copy"
+                text="Reply to"
                 onSelect={() => favoriteMessage(messageId, chatId, userId)}
               />
             </MenuOptions>
@@ -141,6 +149,13 @@ const styles = StyleSheet.create({
   timeContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    marginTop: 2,
+  },
+  time: {
+    fontFamily: "regular",
+    letterSpacing: 0.3,
+    fontSize: 12,
+    color: colors.gray,
   },
 });
 
