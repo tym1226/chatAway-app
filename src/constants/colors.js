@@ -10,4 +10,5 @@ export default {
   whiteBackground: "#e2dacc",
   biege: "#fef5c3",
   darkGray: "#65644A",
+  bubbleGreen: "#a8edb5",
 };

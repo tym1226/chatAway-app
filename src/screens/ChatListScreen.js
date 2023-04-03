@@ -68,7 +68,7 @@ const ChatListScreen = (props) => {
           if (!otherUser) return;
 
           const title = `${otherUser.firstName} ${otherUser.lastName}`;
-          const subTitle = "this is a message";
+          const subTitle = chatData.latestMessageText || "New chat";
           const image = otherUser.profilePicture;
 
           return (
