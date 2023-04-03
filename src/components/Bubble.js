@@ -11,9 +11,15 @@ import uuid from "react-native-uuid";
 import * as ClipBoard from "expo-clipboard";
 import MenuItem from "./MenuItem";
 import { favoriteMessage } from "../utils/actions/chatActions";
+import { useSelector } from "react-redux";
+import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 
 const Bubble = (props) => {
   const { text, type, messageId, chatId, userId } = props;
+
+  const favoriteMessages = useSelector(
+    (state) => state.messages.favoriteMessages[chatId] ?? {}
+  );
 
   const bubbleStyle = { ...styles.container };
   const textStyle = { ...styles.text };
@@ -22,7 +28,9 @@ const Bubble = (props) => {
   const menuRef = useRef(null);
   // useRef so the menuId only generates one time instead of everytime it renders
   const menuId = useRef(uuid.v4());
+
   let Container = View;
+  let isUserMessage = false;
 
   switch (type) {
     case "system":
@@ -45,6 +53,7 @@ const Bubble = (props) => {
       bubbleStyle.maxWidth = "90%";
       bubbleStyle.padding = 4;
       Container = TouchableWithoutFeedback;
+      isUserMessage = true;
       break;
     case "theirMessage":
       wrapperStyle.justifyContent = "flex-start";
@@ -52,6 +61,7 @@ const Bubble = (props) => {
       bubbleStyle.maxWidth = "90%";
       bubbleStyle.padding = 4;
       Container = TouchableWithoutFeedback;
+      isUserMessage = true;
       break;
     default:
       break;
@@ -65,6 +75,8 @@ const Bubble = (props) => {
     }
   };
 
+  const isFavorite = isUserMessage && favoriteMessages[messageId] !== undefined;
+
   return (
     <View style={wrapperStyle}>
       <Container
@@ -76,6 +88,14 @@ const Bubble = (props) => {
         <View style={bubbleStyle}>
           <Text style={textStyle}>{text}</Text>
 
+          {
+            <View style={styles.timeContainer}>
+              {isFavorite && (
+                <AntDesign name="star" size={14} color={colors.textColor} />
+              )}
+            </View>
+          }
+
           <Menu name={menuId.current} ref={menuRef}>
             <MenuTrigger />
             <MenuOptions>
@@ -83,11 +103,12 @@ const Bubble = (props) => {
                 text="Copy"
                 onSelect={() => copyToClipboard(text)}
                 iconName="copy"
+                inconPack={FontAwesome5}
               />
               <MenuItem
-                text="Favorite"
+                text={`${isFavorite ? "UnFavorite" : "Favorite"}`}
                 onSelect={() => favoriteMessage(messageId, chatId, userId)}
-                iconName="star"
+                iconName={isFavorite ? "star" : "staro"}
               />
               <MenuItem
                 text="Copy"
@@ -116,6 +137,10 @@ const styles = StyleSheet.create({
     borderColor: colors.whiteBackground,
     borderWidth: 1,
     borderRadius: 5,
+  },
+  timeContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
   },
 });
 

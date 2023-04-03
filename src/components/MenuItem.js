@@ -2,10 +2,10 @@ import { StyleSheet, View, Text } from "react-native";
 import React from "react";
 import colors from "../constants/colors";
 import { MenuOption } from "react-native-popup-menu";
-import { FontAwesome5 } from "@expo/vector-icons";
+import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 
 const MenuItem = (props) => {
-  const Icon = props.inconPack ?? FontAwesome5;
+  const Icon = props.inconPack ?? AntDesign;
   return (
     <MenuOption onSelect={props.onSelect}>
       <View style={styles.menuItemContainer}>

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import colors from "../constants/colors";
 import commonStyle from "../constants/commonStyle";
 import { setChatsData } from "../store/chatSlice";
-import { setChatMessages } from "../store/messagesSlice";
+import { setChatMessages, setFavoriteMessages } from "../store/messagesSlice";
 import { setStoredUsers } from "../store/userSlice";
 import { getFirebaseApp } from "../utils/firebaseHelper";
 
@@ -79,6 +79,16 @@ const MainNavigator = (props) => {
           setIsLoading(false);
         }
       }
+    });
+
+    const userFavoriteMessagesRef = child(
+      dbRef,
+      `userFavoriteMessages/${userData.userId}`
+    );
+    refs.push(userFavoriteMessagesRef);
+    onValue(userFavoriteMessagesRef, (querySnapshot) => {
+      const favoriteMessages = querySnapshot.val() ?? {};
+      dispatch(setFavoriteMessages({ favoriteMessages }));
     });
 
     return () => {
