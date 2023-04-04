@@ -13,14 +13,25 @@ import MenuItem from "./MenuItem";
 import { favoriteMessage } from "../utils/actions/chatActions";
 import { useSelector } from "react-redux";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
-import FormatDate from "./formatDate";
+import FormatDate from "./FormatDate";
 
 const Bubble = (props) => {
-  const { text, type, messageId, chatId, userId, date } = props;
+  const {
+    text,
+    type,
+    messageId,
+    chatId,
+    userId,
+    date,
+    setReply,
+    replyingTo,
+    name,
+  } = props;
 
   const favoriteMessages = useSelector(
     (state) => state.messages.favoriteMessages[chatId] ?? {}
   );
+  const storedUsers = useSelector((state) => state.users.storedUsers);
 
   const bubbleStyle = { ...styles.container };
   const textStyle = { ...styles.text };
@@ -32,7 +43,7 @@ const Bubble = (props) => {
 
   let Container = View;
   let isUserMessage = false;
-  const dateString = FormatDate(date);
+  const dateString = date && FormatDate(date);
 
   switch (type) {
     case "system":
@@ -65,6 +76,11 @@ const Bubble = (props) => {
       Container = TouchableWithoutFeedback;
       isUserMessage = true;
       break;
+    case "reply":
+      bubbleStyle.backgroundColor = colors.biege;
+      bubbleStyle.flexDirection = "row";
+      bubbleStyle.padding = 3;
+      break;
     default:
       break;
   }
@@ -79,6 +95,8 @@ const Bubble = (props) => {
 
   const isFavorite = isUserMessage && favoriteMessages[messageId] !== undefined;
 
+  const replyingToUser = replyingTo && storedUsers[replyingTo.sentBy];
+
   return (
     <View style={wrapperStyle}>
       <Container
@@ -88,6 +106,15 @@ const Bubble = (props) => {
         }
       >
         <View style={bubbleStyle}>
+          {name && <Text style={styles.replyText}>{`${name}:`}</Text>}
+          {replyingToUser && (
+            <Bubble
+              type="reply"
+              text={replyingTo.text}
+              name={`${replyingToUser.firstName} ${replyingToUser.lastName}`}
+            />
+          )}
+
           <Text style={textStyle}>{text}</Text>
 
           {dateString && (
@@ -119,8 +146,10 @@ const Bubble = (props) => {
                 iconName={isFavorite ? "star" : "staro"}
               />
               <MenuItem
-                text="Reply to"
-                onSelect={() => favoriteMessage(messageId, chatId, userId)}
+                text="Reply"
+                inconPack={FontAwesome5}
+                iconName="reply"
+                onSelect={setReply}
               />
             </MenuOptions>
           </Menu>
@@ -156,6 +185,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
     fontSize: 12,
     color: colors.gray,
+  },
+  replyText: {
+    fontFamily: "bold",
+    color: colors.darkGray,
+    letterSpacing: 0.3,
+    marginRight: 2,
   },
 });
 

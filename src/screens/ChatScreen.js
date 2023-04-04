@@ -23,12 +23,14 @@ import colors from "../constants/colors";
 import PageContainer from "../components/PageContainer";
 import Bubble from "../components/Bubble";
 import { createChat, sendTextMessage } from "../utils/actions/chatActions";
+import ReplyTo from "../components/ReplyTo";
 
 const ChatScreen = (props) => {
   const [chatUsers, setChatUsers] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [chatId, setChatId] = useState(props.route?.params?.chatId);
   const [errorBannerText, setErrorBannerText] = useState("");
+  const [replyingTo, setReplyingTo] = useState();
 
   const storedUsers = useSelector((state) => state.users.storedUsers);
   const userData = useSelector((state) => state.auth.userData);
@@ -81,9 +83,15 @@ const ChatScreen = (props) => {
         setChatId(id);
       }
 
-      await sendTextMessage(chatId, userData.userId, messageText);
+      await sendTextMessage(
+        chatId,
+        userData.userId,
+        messageText,
+        replyingTo && replyingTo.key
+      );
 
       setMessageText("");
+      setReplyingTo(null);
     } catch (err) {
       console.log(err);
       /** show an error banner if sending message fails */
@@ -129,12 +137,24 @@ const ChatScreen = (props) => {
                       userId={userData.userId}
                       chatId={chatId}
                       date={message.sentAt}
+                      setReply={() => setReplyingTo(message)}
+                      replyingTo={
+                        message.replyTo &&
+                        chatMessages.find((i) => i.key === message.replyTo)
+                      }
                     />
                   );
                 }}
               />
             )}
           </PageContainer>
+          {replyingTo && (
+            <ReplyTo
+              text={replyingTo.text}
+              user={storedUsers[replyingTo.sentBy]}
+              onCancel={() => setReplyingTo(null)}
+            />
+          )}
         </ImageBackground>
 
         <View style={styles.inputContainer}>

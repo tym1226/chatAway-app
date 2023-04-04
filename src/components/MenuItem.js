@@ -10,7 +10,7 @@ const MenuItem = (props) => {
     <MenuOption onSelect={props.onSelect}>
       <View style={styles.menuItemContainer}>
         <Text style={styles.menuText}>{props.text}</Text>
-        <Icon name={props.iconName} size={18} />
+        <Icon name={props.iconName} size={props.size ?? 18} />
       </View>
     </MenuOption>
   );
