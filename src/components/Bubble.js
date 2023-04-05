@@ -1,4 +1,10 @@
-import { StyleSheet, View, Text, TouchableWithoutFeedback } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableWithoutFeedback,
+  Image,
+} from "react-native";
 import React, { useRef } from "react";
 import colors from "../constants/colors";
 import {
@@ -26,6 +32,7 @@ const Bubble = (props) => {
     setReply,
     replyingTo,
     name,
+    imageUrl,
   } = props;
 
   const favoriteMessages = useSelector(
@@ -44,6 +51,7 @@ const Bubble = (props) => {
   let Container = View;
   let isUserMessage = false;
   const dateString = date && FormatDate(date);
+  const replyToSentTime = replyingTo && FormatDate(replyingTo.sentAt);
 
   switch (type) {
     case "system":
@@ -76,10 +84,16 @@ const Bubble = (props) => {
       Container = TouchableWithoutFeedback;
       isUserMessage = true;
       break;
-    case "reply":
+    case "replyText":
       bubbleStyle.backgroundColor = colors.biege;
       bubbleStyle.flexDirection = "row";
-      bubbleStyle.padding = 3;
+      bubbleStyle.padding = 2;
+      break;
+    case "replyImage":
+      bubbleStyle.backgroundColor = colors.biege;
+      bubbleStyle.padding = 2;
+      bubbleStyle.flexDirection = "row";
+
       break;
     default:
       break;
@@ -106,16 +120,29 @@ const Bubble = (props) => {
         }
       >
         <View style={bubbleStyle}>
-          {name && <Text style={styles.replyText}>{`${name}:`}</Text>}
-          {replyingToUser && (
-            <Bubble
-              type="reply"
-              text={replyingTo.text}
-              name={`${replyingToUser.firstName} ${replyingToUser.lastName}`}
-            />
-          )}
+          <View style={styles.replyBlock}>
+            {name && <Text style={styles.name}>{`${name}:`}</Text>}
+            {replyingToUser && replyingTo.text && !replyingTo.imageUrl && (
+              <Bubble
+                type="replyText"
+                text={replyingTo.text}
+                name={`${replyingToUser.firstName} ${replyingToUser.lastName}`}
+              />
+            )}
 
-          <Text style={textStyle}>{text}</Text>
+            {replyingToUser && replyingTo.imageUrl && (
+              <Bubble
+                type="replyImage"
+                text={`Image sent at ${replyToSentTime}`}
+              />
+            )}
+          </View>
+
+          {!imageUrl && <Text style={textStyle}>{text}</Text>}
+
+          {imageUrl && (
+            <Image source={{ uri: imageUrl }} style={styles.regularImage} />
+          )}
 
           {dateString && (
             <View style={styles.timeContainer}>
@@ -186,11 +213,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.gray,
   },
-  replyText: {
+  name: {
     fontFamily: "bold",
     color: colors.darkGray,
     letterSpacing: 0.3,
     marginRight: 2,
+  },
+  regularImage: {
+    width: 250,
+    height: 250,
+    marginBottom: 5,
+  },
+  replyImage: {
+    width: 50,
+    height: 50,
+    marginBottom: 2,
+  },
+
+  replyBlock: {
+    flexDirection: "row",
   },
 });
 
