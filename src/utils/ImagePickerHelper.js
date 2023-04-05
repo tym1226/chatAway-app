@@ -64,3 +64,22 @@ export const uploadImageAsync = async (uri, isChatImage = false) => {
   blob.close();
   return await getDownloadURL(storageRef);
 };
+
+export const openCamera = async () => {
+  const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+  if (permissionResult.granted === false) {
+    console.log("No permission to access the camera");
+  }
+
+  const result = await ImagePicker.launchCameraAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 1,
+  });
+
+  if (!result.canceled) {
+    return result.assets[0].uri;
+  }
+};
