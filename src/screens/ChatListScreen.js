@@ -76,7 +76,7 @@ const ChatListScreen = (props) => {
       };
 
       if (chatName) {
-        navigationProps.chatName = chatName;
+        navigationProps.newChatData.chatName = chatName;
       }
     }
 
@@ -102,17 +102,25 @@ const ChatListScreen = (props) => {
         renderItem={(itemData) => {
           const chatData = itemData.item;
           const chatId = chatData.key;
-          // list the users that the logged in user is chatting with
-          const otherUserId = chatData.users.find(
-            (uid) => uid !== userData.userId
-          );
-          const otherUser = storedUsers[otherUserId];
+          const isGroupChat = chatData.isGroupChat;
 
-          if (!otherUser) return;
-
-          const title = `${otherUser.firstName} ${otherUser.lastName}`;
+          let title = "";
           const subTitle = chatData.latestMessageText || "New chat";
-          const image = otherUser.profilePicture;
+          let image = "";
+
+          if (isGroupChat) {
+            title = chatData.chatName;
+          } else {
+            const otherUserId = chatData.users.find(
+              (uid) => uid !== userData.userId
+            );
+            const otherUser = storedUsers[otherUserId];
+
+            if (!otherUser) return;
+
+            title = `${otherUser.firstName} ${otherUser.lastName}`;
+            image = otherUser.profilePicture;
+          }
 
           return (
             <DataItem

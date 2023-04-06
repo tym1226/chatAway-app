@@ -47,14 +47,14 @@ const ChatScreen = (props) => {
 
   const flatList = useRef();
 
-  const storedUsers = useSelector((state) => state.users.storedUsers);
   const userData = useSelector((state) => state.auth.userData);
+  const storedUsers = useSelector((state) => state.users.storedUsers);
   const storedChats = useSelector((state) => state.chats.chatsData);
   const chatMessages = useSelector((state) => {
     if (!chatId) return [];
 
-    // get chatIds for this chat
     const chatMessagesData = state.messages.messagesData[chatId];
+
     if (!chatMessagesData) return [];
 
     const messageList = [];
@@ -66,6 +66,7 @@ const ChatScreen = (props) => {
         ...message,
       });
     }
+
     return messageList;
   });
 
@@ -80,9 +81,11 @@ const ChatScreen = (props) => {
     );
   };
 
+  const title = chatData.chatName ?? getChatTitleFromName();
+
   useEffect(() => {
     props.navigation.setOptions({
-      headerTitle: getChatTitleFromName(),
+      headerTitle: title,
     });
     setChatUsers(chatData.users);
   }, [chatUsers]);
@@ -91,15 +94,13 @@ const ChatScreen = (props) => {
     try {
       let id = chatId;
       if (!id) {
-        id = await createChat(
-          userData.userId,
-          props.route?.params?.newChatData
-        );
+        // No chat Id. Create the chat
+        id = await createChat(userData.userId, props.route.params.newChatData);
         setChatId(id);
       }
 
       await sendTextMessage(
-        chatId,
+        id,
         userData.userId,
         messageText,
         replyingTo && replyingTo.key
@@ -107,10 +108,9 @@ const ChatScreen = (props) => {
 
       setMessageText("");
       setReplyingTo(null);
-    } catch (err) {
-      console.log(err);
-      /** show an error banner if sending message fails */
-      setErrorBannerText("Message failed to send.");
+    } catch (error) {
+      console.log(error);
+      setErrorBannerText("Message failed to send");
       setTimeout(() => setErrorBannerText(""), 5000);
     }
   }, [messageText, chatId]);
@@ -191,13 +191,6 @@ const ChatScreen = (props) => {
             )}
             {chatId && (
               <FlatList
-                ref={(ref) => (flatList.current = ref)}
-                onContentSizeChange={() =>
-                  flatList.current.scrollToEnd({ animated: false })
-                }
-                onLayout={() =>
-                  flatList.current.scrollToEnd({ animated: false })
-                }
                 data={chatMessages}
                 renderItem={(itemData) => {
                   const message = itemData.item;
@@ -205,6 +198,10 @@ const ChatScreen = (props) => {
                   const messageType = isOwnMessage
                     ? "myMessage"
                     : "theirMessage";
+                  const sender = message.sentBy && storedUsers[message.sentBy];
+                  const name =
+                    sender && `${sender.firstName} ${sender.lastName}`;
+
                   return (
                     <Bubble
                       type={messageType}
@@ -213,6 +210,9 @@ const ChatScreen = (props) => {
                       userId={userData.userId}
                       chatId={chatId}
                       date={message.sentAt}
+                      name={
+                        !chatData.isGroupChat || isOwnMessage ? undefined : name
+                      }
                       setReply={() => setReplyingTo(message)}
                       replyingTo={
                         message.replyTo &&

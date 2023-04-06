@@ -56,7 +56,7 @@ const NewChatScreen = (props) => {
               <Item
                 title="Create"
                 disabled={isGroupChatDisabled}
-                color={isGroupChatDisabled ? colors.lightGrey : undefined}
+                color={isGroupChatDisabled ? colors.lightGray : undefined}
                 onPress={() => {
                   props.navigation.navigate("ChatList", {
                     selectedUsers,
@@ -127,7 +127,8 @@ const NewChatScreen = (props) => {
                 style={styles.textbox}
                 placeholder="Enter a name for your chat"
                 autoCorrect={false}
-                autoComplete={false}
+                autoComplete="off"
+                value={chatName}
                 onChangeText={(text) => setChatName(text)}
               />
             </View>
@@ -140,10 +141,6 @@ const NewChatScreen = (props) => {
               horizontal={true}
               keyExtractor={(item) => item}
               contentContainerStyle={{ alignItems: "center" }}
-              ref={(ref) => (selectedUsersFlatList.current = ref)}
-              onContentSizeChange={() =>
-                selectedUsersFlatList.current.scrollToEnd()
-              }
               renderItem={(itemData) => {
                 const userId = itemData.item;
                 const userData = storedUsers[userId];
