@@ -1,14 +1,24 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Button, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 import { useSelector } from "react-redux";
 import CustomHeaderButton from "../components/CustomHeaderButton";
 import DataItem from "../components/DataItem";
 import PageContainer from "../components/PageContainer";
 import PageTitle from "../components/PageTitle";
+import colors from "../constants/colors";
 
 const ChatListScreen = (props) => {
   const selectedUser = props.route?.params?.selectedUserId;
+  const selectedUserList = props.route?.params?.selectedUsers;
+  const chatName = props.route?.params?.chatName;
 
   const userData = useSelector((state) => state.auth.userData);
   const storedUsers = useSelector((state) => state.users.storedUsers);
@@ -37,15 +47,38 @@ const ChatListScreen = (props) => {
   }, []);
 
   useEffect(() => {
-    if (!selectedUser) {
+    if (!selectedUser && !selectedUserList) {
       return;
     }
 
-    const chatUsers = [selectedUser, userData.userId];
+    let chatData;
+    let navigationProps;
 
-    const navigationProps = {
-      newChatData: { users: chatUsers },
-    };
+    if (selectedUser) {
+      chatData = userChats.find(
+        (cd) => !cd.isGroupChat && cd.users.includes(selectedUser)
+      );
+    }
+
+    if (chatData) {
+      navigationProps = { chatId: chatData.key };
+    } else {
+      const chatUsers = selectedUserList || [selectedUser];
+      if (!chatUsers.includes(userData.userId)) {
+        chatUsers.push(userData.userId);
+      }
+
+      const navigationProps = {
+        newChatData: {
+          users: chatUsers,
+          isGroupChat: selectedUserList !== undefined,
+        },
+      };
+
+      if (chatName) {
+        navigationProps.chatName = chatName;
+      }
+    }
 
     props.navigation.navigate("ChatScreen", navigationProps);
   }, [props.route?.params]);
@@ -53,6 +86,16 @@ const ChatListScreen = (props) => {
   return (
     <PageContainer>
       <PageTitle text="Chats" />
+
+      <View>
+        <TouchableOpacity
+          onPress={() =>
+            props.navigation.navigate("NewChat", { isGroupChat: true })
+          }
+        >
+          <Text style={styles.newGroupText}>New Group</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={userChats}
@@ -92,6 +135,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  newGroupText: {
+    color: colors.blue,
+    fontSize: 18,
+    marginBottom: 6,
   },
 });
 

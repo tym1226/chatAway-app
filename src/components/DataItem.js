@@ -2,9 +2,10 @@ import React from "react";
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
 import colors from "../constants/colors";
 import ProfileImage from "./ProfileImage";
+import { Feather } from "@expo/vector-icons";
 
 const DataItem = (props) => {
-  const { title, subTitle, image } = props;
+  const { title, subTitle, image, type, isChecked } = props;
   return (
     <TouchableWithoutFeedback onPress={props.onPress}>
       <View style={styles.container}>
@@ -18,6 +19,16 @@ const DataItem = (props) => {
             {subTitle}
           </Text>
         </View>
+        {type === "checkbox" && (
+          <View
+            style={{
+              ...styles.iconContainer,
+              ...(isChecked && styles.checkedStyle),
+            }}
+          >
+            <Feather name="check" size={18} color="white" />
+          </View>
+        )}
       </View>
     </TouchableWithoutFeedback>
   );
@@ -34,6 +45,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     marginLeft: 14,
+    flex: 1,
   },
   title: {
     fontFamily: "medium",
@@ -45,6 +57,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.gray,
     letterSpacing: 0.3,
+  },
+  iconContainer: {
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderRadius: 15,
+    borderColor: colors.lightGray,
+  },
+  checkedStyle: {
+    backgroundColor: colors.primaryColor,
+    borderColor: "transparent",
   },
 });
 
