@@ -41,11 +41,27 @@ const ChatListScreen = (props) => {
       return;
     }
 
-    const chatUsers = [selectedUser, userData.userId];
+    let chatData;
+    let navigationProps;
 
-    const navigationProps = {
-      newChatData: { users: chatUsers },
-    };
+    // check to use if the selecteduser already has a chat
+    if (selectedUser) {
+      chatData = userChats.find((cd) => cd.users.includes(selectedUser));
+    }
+
+    if (chatData) {
+      // the selected user already has a chat
+      navigationProps = {
+        chatId: chatData.key,
+      };
+    } else {
+      // create a new chat
+      const chatUsers = [selectedUser, userData.userId];
+
+      navigationProps = {
+        newChatData: { users: chatUsers },
+      };
+    }
 
     props.navigation.navigate("ChatScreen", navigationProps);
   }, [props.route?.params]);
