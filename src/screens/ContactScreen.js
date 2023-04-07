@@ -1,11 +1,14 @@
 import React from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useSelector } from "react-redux";
+import DataItem from "../components/DataItem";
 import PageContainer from "../components/PageContainer";
 import PageTitle from "../components/PageTitle";
 import ProfileImage from "../components/ProfileImage";
 import colors from "../constants/colors";
+import { getUserChats } from "../utils/actions/userActions";
 
 const ContactScreen = (props) => {
   const storedUsers = useSelector((state) => state.users.storedUsers);
@@ -13,6 +16,19 @@ const ContactScreen = (props) => {
   const storedChats = useSelector((state) => state.chats.chatsData);
 
   const [commonChats, setCommonChats] = useState([]);
+
+  useEffect(() => {
+    const getCommonUserChats = async () => {
+      const currentUserChats = await getUserChats(currentUser.userId);
+      setCommonChats(
+        Object.values(currentUserChats).filter(
+          (cid) => storedChats[cid] && storedChats[cid].isGroupChat
+        )
+      );
+    };
+
+    getCommonUserChats();
+  }, []);
 
   return (
     <PageContainer>
@@ -30,6 +46,29 @@ const ContactScreen = (props) => {
           </Text>
         )}
       </View>
+
+      {commonChats.length > 0 && (
+        <>
+          <Text style={styles.commonGroupHeading}>
+            {commonChats.length} {commonChats.length === 1 ? "Group" : "Groups"}{" "}
+            in Common
+          </Text>
+          {commonChats.map((cid) => {
+            const chatData = storedChats[cid];
+            return (
+              <DataItem
+                key={cid}
+                title={chatData.chatName}
+                subTitle={chatData.latestMessageText}
+                type="link"
+                onPress={() =>
+                  props.navigation.push("ChatScreen", { chatId: cid })
+                }
+              />
+            );
+          })}
+        </>
+      )}
     </PageContainer>
   );
 };
@@ -45,6 +84,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
     color: colors.gray,
     fontSize: 16,
+  },
+  commonGroupHeading: {
+    fontFamily: "bold",
+    letterSpacing: 0.3,
+    color: colors.textColor,
+    marginVertical: 10,
+    fontSize: 18,
   },
 });
 

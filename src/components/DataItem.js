@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
 import colors from "../constants/colors";
 import ProfileImage from "./ProfileImage";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 
 const DataItem = (props) => {
   const { title, subTitle, image, type, isChecked } = props;
@@ -27,6 +27,16 @@ const DataItem = (props) => {
             }}
           >
             <Feather name="check" size={18} color="white" />
+          </View>
+        )}
+
+        {type === "link" && (
+          <View>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={22}
+              color={colors.gray}
+            />
           </View>
         )}
       </View>
