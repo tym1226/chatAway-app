@@ -68,7 +68,7 @@ const ChatListScreen = (props) => {
         chatUsers.push(userData.userId);
       }
 
-      const navigationProps = {
+      navigationProps = {
         newChatData: {
           users: chatUsers,
           isGroupChat: selectedUserList !== undefined,
