@@ -95,7 +95,12 @@ const Bubble = (props) => {
       bubbleStyle.backgroundColor = colors.biege;
       bubbleStyle.padding = 2;
       bubbleStyle.flexDirection = "row";
-
+      break;
+    case "info":
+      bubbleStyle.backgroundColor = colors.extraLightGray;
+      bubbleStyle.alignItems = "center";
+      textStyle.color = colors.darkGray;
+      bubbleStyle.padding = 2;
       break;
     default:
       break;
@@ -123,7 +128,9 @@ const Bubble = (props) => {
       >
         <View style={bubbleStyle}>
           <View style={styles.replyBlock}>
-            {name && <Text style={styles.name}>{`${name}:`}</Text>}
+            {name && type !== "info" && (
+              <Text style={styles.name}>{`${name}:`}</Text>
+            )}
             {replyingToUser && replyingTo.text && !replyingTo.imageUrl && (
               <Bubble
                 type="replyText"
@@ -146,7 +153,7 @@ const Bubble = (props) => {
             <Image source={{ uri: imageUrl }} style={styles.regularImage} />
           )}
 
-          {dateString && (
+          {dateString && type !== "info" && (
             <View style={styles.timeContainer}>
               {isFavorite && (
                 <AntDesign

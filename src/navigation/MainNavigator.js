@@ -44,6 +44,11 @@ const MainNavigator = (props) => {
           const data = chatSnapshot.val();
 
           if (data) {
+            // remove a chat if a user was removed or left
+            if (!data.users.includes(userData.userId)) {
+              return;
+            }
+
             data.key = chatSnapshot.key;
             data.users.forEach((userId) => {
               if (storedUsers[userId]) return;

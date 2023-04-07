@@ -1,21 +1,30 @@
 import React from "react";
 import { useEffect } from "react";
+import { useCallback } from "react";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useSelector } from "react-redux";
 import DataItem from "../components/DataItem";
 import PageContainer from "../components/PageContainer";
 import PageTitle from "../components/PageTitle";
 import ProfileImage from "../components/ProfileImage";
+import SubmitButton from "../components/SubmitButton";
 import colors from "../constants/colors";
+import { removeUserFromChat } from "../utils/actions/chatActions";
 import { getUserChats } from "../utils/actions/userActions";
 
 const ContactScreen = (props) => {
   const storedUsers = useSelector((state) => state.users.storedUsers);
-  const currentUser = storedUsers[props.route.params.uid];
   const storedChats = useSelector((state) => state.chats.chatsData);
+  const userData = useSelector((state) => state.auth.userData);
+
+  const currentUser = storedUsers[props.route.params.uid];
+  const chatId = props.route.params.chatId;
+
+  const chatData = chatId && storedChats[chatId];
 
   const [commonChats, setCommonChats] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const getCommonUserChats = async () => {
@@ -29,6 +38,21 @@ const ContactScreen = (props) => {
 
     getCommonUserChats();
   }, []);
+
+  const removeFromChat = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      // remove user
+      await removeUserFromChat(userData, currentUser, chatData);
+
+      // go back after removal
+      props.navigation.goBack();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [props.navigation, isLoading]);
 
   return (
     <PageContainer>
@@ -64,11 +88,24 @@ const ContactScreen = (props) => {
                 onPress={() =>
                   props.navigation.push("ChatScreen", { chatId: cid })
                 }
+                image={chatData.chatImage}
               />
             );
           })}
         </>
       )}
+
+      {chatData &&
+        chatData.isGroupChat &&
+        (isLoading ? (
+          <ActivityIndicator size={"small"} color={colors.primaryColor} />
+        ) : (
+          <SubmitButton
+            title="Remove from chat"
+            color={colors.red}
+            onPress={removeFromChat}
+          />
+        ))}
     </PageContainer>
   );
 };

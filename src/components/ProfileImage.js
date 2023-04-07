@@ -13,6 +13,7 @@ import { updateSignedInUserData } from "../utils/actions/authActions";
 import { updateLoggedInUserData } from "../store/authSlice";
 import { useDispatch } from "react-redux";
 import { ActivityIndicator } from "react-native";
+import { updateChatData } from "../utils/actions/chatActions";
 
 const ProfileImage = (props) => {
   const dispatch = useDispatch();
@@ -27,6 +28,7 @@ const ProfileImage = (props) => {
     props.showRemoveButton && props.showRemoveButton === true;
 
   const userId = props.userId;
+  const chatId = props.chatId;
 
   const pickImage = async () => {
     try {
@@ -38,17 +40,23 @@ const ProfileImage = (props) => {
 
       // upload the image
       setIsLoading(true);
-      const uploadUrl = await uploadImageAsync(tempUri);
+      const uploadUrl = await uploadImageAsync(tempUri, chatId !== undefined);
       setIsLoading(false);
 
       if (!uploadUrl) {
         throw new Error("Could not upload image");
       }
 
-      const newData = { profilePicture: uploadUrl };
+      if (chatId) {
+        // group chat image
+        await updateChatData(chatId, userId, { chatImage: uploadUrl });
+      } else {
+        // user profile image
+        const newData = { profilePicture: uploadUrl };
 
-      await updateSignedInUserData(userId, newData);
-      dispatch(updateLoggedInUserData({ newData }));
+        await updateSignedInUserData(userId, newData);
+        dispatch(updateLoggedInUserData({ newData }));
+      }
 
       // set the image as profile picture
       setImage({ uri: tempUri });
@@ -106,8 +114,8 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     position: "absolute",
-    bottom: -15,
-    right: -15,
+    bottom: -8,
+    right: -5,
     backgroundColor: colors.lightGray,
     borderRadius: 20,
     padding: 8,

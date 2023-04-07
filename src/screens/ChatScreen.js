@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
-import { Feather, AntDesign } from "@expo/vector-icons";
+import { Feather, Entypo } from "@expo/vector-icons";
 import backgroundImage from "../../assets/images/chatBackground.jpg";
 import colors from "../constants/colors";
 import PageContainer from "../components/PageContainer";
@@ -67,7 +67,7 @@ const ChatScreen = (props) => {
   });
 
   const chatData =
-    (chatId && storedChats[chatId]) || props.route?.params?.newChatData;
+    (chatId && storedChats[chatId]) || props.route?.params?.newChatData || {};
 
   const getChatTitleFromName = () => {
     const otherUserId = chatUsers.find((uid) => uid !== userData.userId);
@@ -77,22 +77,21 @@ const ChatScreen = (props) => {
     );
   };
 
-  const title = chatData.chatName ?? getChatTitleFromName();
-
   useEffect(() => {
+    if (!chatData) return;
     props.navigation.setOptions({
-      headerTitle: title,
+      headerTitle: chatData.chatName ?? getChatTitleFromName(),
       headerRight: () => {
         return (
           <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
             {chatId && (
               <Item
                 title="Contact Card"
-                iconName="contacts"
-                iconPackage={AntDesign}
+                iconName="dots-three-horizontal"
+                iconPackage={Entypo}
                 onPress={() =>
                   chatData.isGroupChat
-                    ? props.navigation.navigate("")
+                    ? props.navigation.navigate("ChatSettings", { chatId })
                     : props.navigation.navigate("Contact", {
                         uid: chatUsers.find((id) => id !== userData.userId),
                       })
@@ -202,7 +201,16 @@ const ChatScreen = (props) => {
               renderItem={(itemData) => {
                 const message = itemData.item;
                 const isOwnMessage = message.sentBy === userData.userId;
-                const messageType = isOwnMessage ? "myMessage" : "theirMessage";
+
+                let messageType;
+                if (message.type && message.type === "info") {
+                  messageType = "info";
+                } else if (isOwnMessage) {
+                  messageType = "myMessage";
+                } else {
+                  messageType = "theirMessage";
+                }
+
                 const sender = message.sentBy && storedUsers[message.sentBy];
                 const name = sender && `${sender.firstName} ${sender.lastName}`;
 
