@@ -1,7 +1,7 @@
 import { child, get, getDatabase, off, onValue, ref } from "firebase/database";
 import React from "react";
 import { useState, useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, KeyboardAvoidingView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import colors from "../constants/colors";
 import commonStyle from "../constants/commonStyle";
@@ -107,7 +107,14 @@ const MainNavigator = (props) => {
     </View>;
   }
 
-  return <StackNavigator />;
+  return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <StackNavigator />
+    </KeyboardAvoidingView>
+  );
 };
 
 export default MainNavigator;

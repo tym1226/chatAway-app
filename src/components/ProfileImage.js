@@ -23,6 +23,8 @@ const ProfileImage = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const showEditButton = props.showEditButton && props.showEditButton === true;
+  const showRemoveButton =
+    props.showRemoveButton && props.showRemoveButton === true;
 
   const userId = props.userId;
 
@@ -56,10 +58,10 @@ const ProfileImage = (props) => {
     }
   };
 
-  const Container = showEditButton ? TouchableOpacity : View;
+  const Container = props.onPress || showEditButton ? TouchableOpacity : View;
 
   return (
-    <Container onPress={pickImage}>
+    <Container onPress={props.onPress || pickImage} style={props.style}>
       {isLoading ? (
         <View
           height={props.size}
@@ -80,6 +82,12 @@ const ProfileImage = (props) => {
       {showEditButton && !isLoading && (
         <View style={styles.iconContainer}>
           <FontAwesome name="pencil" size={18} color="black" />
+        </View>
+      )}
+
+      {showRemoveButton && !isLoading && (
+        <View style={styles.removeIconContainer}>
+          <FontAwesome name="close" size={10} color={colors.gray} />
         </View>
       )}
     </Container>
@@ -103,6 +111,16 @@ const styles = StyleSheet.create({
   loadingContainer: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  removeIconContainer: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    backgroundColor: "white",
+    borderRadius: 15,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: colors.lightGray,
   },
 });
 
