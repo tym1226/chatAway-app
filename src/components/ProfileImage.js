@@ -75,7 +75,11 @@ const ProfileImage = (props) => {
           source={image}
           style={{
             ...styles.image,
-            ...{ width: props.size, height: props.size },
+            ...{
+              width: props.size,
+              height: props.size,
+              borderRadius: props.borderRadius ?? 50,
+            },
           }}
         />
       )}

@@ -73,6 +73,7 @@ const Bubble = (props) => {
       bubbleStyle.backgroundColor = colors.bubbleGreen;
       bubbleStyle.maxWidth = "90%";
       bubbleStyle.padding = 4;
+      bubbleStyle.marginTop = 3;
       Container = TouchableWithoutFeedback;
       isUserMessage = true;
       break;
@@ -81,6 +82,7 @@ const Bubble = (props) => {
       bubbleStyle.backgroundColor = "white";
       bubbleStyle.maxWidth = "90%";
       bubbleStyle.padding = 4;
+      bubbleStyle.marginTop = 3;
       Container = TouchableWithoutFeedback;
       isUserMessage = true;
       break;

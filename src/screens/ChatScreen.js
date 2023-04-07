@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -6,21 +6,15 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   FlatList,
   Text,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
-
-import { Feather } from "@expo/vector-icons";
-
+import { Feather, AntDesign } from "@expo/vector-icons";
 import backgroundImage from "../../assets/images/chatBackground.jpg";
 import colors from "../constants/colors";
-
 import PageContainer from "../components/PageContainer";
 import Bubble from "../components/Bubble";
 import {
@@ -35,6 +29,8 @@ import {
   uploadImageAsync,
 } from "../utils/ImagePickerHelper";
 import AwesomeAlert from "react-native-awesome-alerts";
+import CustomHeaderButton from "../components/CustomHeaderButton";
+import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 const ChatScreen = (props) => {
   const [chatUsers, setChatUsers] = useState([]);
@@ -86,6 +82,26 @@ const ChatScreen = (props) => {
   useEffect(() => {
     props.navigation.setOptions({
       headerTitle: title,
+      headerRight: () => {
+        return (
+          <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+            {chatId && (
+              <Item
+                title="Contact Card"
+                iconName="contacts"
+                iconPackage={AntDesign}
+                onPress={() =>
+                  chatData.isGroupChat
+                    ? props.navigation.navigate("")
+                    : props.navigation.navigate("Contact", {
+                        uid: chatUsers.find((id) => id !== userData.userId),
+                      })
+                }
+              />
+            )}
+          </HeaderButtons>
+        );
+      },
     });
     setChatUsers(chatData.users);
   }, [chatUsers]);
