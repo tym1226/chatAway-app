@@ -1,7 +1,4 @@
-import React from "react";
-import { useEffect } from "react";
-import { useCallback } from "react";
-import { useState } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useSelector } from "react-redux";
 import DataItem from "../components/DataItem";

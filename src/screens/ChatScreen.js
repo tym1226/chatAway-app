@@ -197,6 +197,11 @@ const ChatScreen = (props) => {
           )}
           {chatId && (
             <FlatList
+              ref={(ref) => (flatList.current = ref)}
+              onContentSizeChange={() =>
+                flatList.current.scrollToEnd({ animated: false })
+              }
+              onLayout={() => flatList.current.scrollToEnd({ animated: false })}
               data={chatMessages}
               renderItem={(itemData) => {
                 const message = itemData.item;
