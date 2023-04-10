@@ -36,8 +36,13 @@ const NewChatScreen = (props) => {
 
   const selectedUsersFlatList = useRef();
 
+  const chatId = props.route.params && props.route.params.chatId;
+  const existingUsers = props.route.params && props.route.params.existingUsers;
   const isGroupChat = props.route.params && props.route.params.isGroupChat;
-  const isGroupChatDisabled = selectedUsers.length === 0 || chatName === "";
+  const isGroupChatDisabled =
+    selectedUsers.length === 0 || (isNewChat && chatName === "");
+
+  const isNewChat = !chatId;
 
   /** add a header button to go back to chat list screen */
   useEffect(() => {
@@ -54,13 +59,15 @@ const NewChatScreen = (props) => {
           <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
             {isGroupChat && (
               <Item
-                title="Create"
+                title={isNewChat ? "Create" : "Add"}
                 disabled={isGroupChatDisabled}
                 color={isGroupChatDisabled ? colors.lightGray : undefined}
                 onPress={() => {
-                  props.navigation.navigate("ChatList", {
+                  const screenName = isNewChat ? "ChatList" : "ChatSettings";
+                  props.navigation.navigate(screenName, {
                     selectedUsers,
                     chatName,
+                    chatId,
                   });
                 }}
               />
@@ -119,44 +126,44 @@ const NewChatScreen = (props) => {
 
   return (
     <PageContainer>
-      {isGroupChat && (
-        <>
-          <View style={styles.chatNameContainer}>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.textbox}
-                placeholder="Enter a name for your chat"
-                autoCorrect={false}
-                autoComplete="off"
-                value={chatName}
-                onChangeText={(text) => setChatName(text)}
-              />
-            </View>
-          </View>
-
-          <View style={styles.selectedUsersContainer}>
-            <FlatList
-              style={styles.selectedUsersList}
-              data={selectedUsers}
-              horizontal={true}
-              keyExtractor={(item) => item}
-              contentContainerStyle={{ alignItems: "center" }}
-              renderItem={(itemData) => {
-                const userId = itemData.item;
-                const userData = storedUsers[userId];
-                return (
-                  <ProfileImage
-                    style={styles.selectedUserStyle}
-                    uri={userData.profilePicture}
-                    size={40}
-                    onPress={() => userPressed(userId)}
-                    showRemoveButton={true}
-                  />
-                );
-              }}
+      {isNewChat && isGroupChat && (
+        <View style={styles.chatNameContainer}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.textbox}
+              placeholder="Enter a name for your chat"
+              autoCorrect={false}
+              autoComplete="off"
+              value={chatName}
+              onChangeText={(text) => setChatName(text)}
             />
           </View>
-        </>
+        </View>
+      )}
+
+      {isGroupChat && (
+        <View style={styles.selectedUsersContainer}>
+          <FlatList
+            style={styles.selectedUsersList}
+            data={selectedUsers}
+            horizontal={true}
+            keyExtractor={(item) => item}
+            contentContainerStyle={{ alignItems: "center" }}
+            renderItem={(itemData) => {
+              const userId = itemData.item;
+              const userData = storedUsers[userId];
+              return (
+                <ProfileImage
+                  style={styles.selectedUserStyle}
+                  uri={userData.profilePicture}
+                  size={40}
+                  onPress={() => userPressed(userId)}
+                  showRemoveButton={true}
+                />
+              );
+            }}
+          />
+        </View>
       )}
 
       <View style={styles.searchContainer}>
@@ -181,6 +188,10 @@ const NewChatScreen = (props) => {
           renderItem={(itemData) => {
             const userId = itemData.item;
             const userData = users[userId];
+
+            if (existingUsers && existingUsers.includes(userId)) {
+              return;
+            }
 
             return (
               <DataItem

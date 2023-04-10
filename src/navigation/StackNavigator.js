@@ -9,6 +9,7 @@ import SettingsScreen from "../screens/SettingsScreen";
 import ChatScreen from "../screens/ChatScreen";
 import NewChatScreen from "../screens/NewChatScreen";
 import ContactScreen from "../screens/ContactScreen";
+import DataListScreen from "../screens/DataListScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -79,6 +80,14 @@ const StackNavigator = () => {
           component={ContactScreen}
           options={{
             headerTitle: "Contact Card",
+            headerBackTitle: "Back",
+          }}
+        />
+        <Stack.Screen
+          name="DataList"
+          component={DataListScreen}
+          options={{
+            headerTitle: "All participants",
             headerBackTitle: "Back",
           }}
         />

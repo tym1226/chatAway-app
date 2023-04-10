@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import ProfileImage from "../components/ProfileImage";
 import SubmitButton from "../components/SubmitButton";
 import colors from "../constants/colors";
 import {
+  addUsersToChat,
   removeUserFromChat,
   updateChatData,
 } from "../utils/actions/chatActions";
@@ -36,6 +37,27 @@ const ChatSettingsScreen = (props) => {
     inputValues: { chatName: chatData.chatName },
     formIsValid: false,
   };
+
+  const selectedUsers = props.route.params.selectedUsers;
+  useEffect(() => {
+    if (!selectedUsers) {
+      return;
+    }
+
+    const selectedUserData = [];
+    selectedUsers.forEach((uid) => {
+      if (uid === userData.userId) return;
+
+      if (!storedUsers[uid]) {
+        // console.log("No user data found in the data store");
+        return;
+      }
+
+      selectedUserData.push(storedUsers[uid]);
+
+      addUsersToChat(userData, selectedUserData, chatData);
+    });
+  }, [selectedUsers]);
 
   const [formState, dispatchFormState] = useReducer(reducer, initialState);
 
@@ -125,8 +147,19 @@ const ChatSettingsScreen = (props) => {
             {chatData.users.length} Participants
           </Text>
 
-          <DataItem title="Add participants" icon="pluscircleo" type="button" />
-          {chatData.users.map((uid) => {
+          <DataItem
+            title="Add participants"
+            icon="pluscircleo"
+            type="button"
+            onPress={() =>
+              props.navigation.navigate("NewChat", {
+                isGroupChat: true,
+                existingUsers: chatData.users,
+                chatId,
+              })
+            }
+          />
+          {chatData.users.slice(0, 6).map((uid) => {
             const currentUser = storedUsers[uid];
             return (
               <DataItem
@@ -142,6 +175,22 @@ const ChatSettingsScreen = (props) => {
               />
             );
           })}
+
+          {chatData.users.length > 6 && (
+            <DataItem
+              type={"link"}
+              title="View all"
+              hideImage={true}
+              onPress={() =>
+                props.navigation.navigate("DataList", {
+                  title: "Participants",
+                  data: chatData.users,
+                  type: "users",
+                  chatId,
+                })
+              }
+            />
+          )}
         </View>
 
         {showSuccessMsg && (
