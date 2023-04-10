@@ -28,6 +28,9 @@ const ChatSettingsScreen = (props) => {
   const chatData = useSelector((state) => state.chats.chatsData[chatId] || {});
   const userData = useSelector((state) => state.auth.userData);
   const storedUsers = useSelector((state) => state.users.storedUsers);
+  const favoriteMessages = useSelector(
+    (state) => state.messages.favoriteMessages[chatId] ?? {}
+  );
 
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessMsg, setShowSuccessMsg] = useState(false);
@@ -209,6 +212,21 @@ const ChatSettingsScreen = (props) => {
             />
           )
         )}
+
+        {
+          <DataItem
+            type={"link"}
+            title="Favorite messages"
+            hideImage={true}
+            onPress={() =>
+              props.navigation.navigate("DataList", {
+                title: "Favorite Messages",
+                data: Object.values(favoriteMessages),
+                type: "messages",
+              })
+            }
+          />
+        }
       </ScrollView>
 
       {

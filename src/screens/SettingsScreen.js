@@ -3,7 +3,7 @@ import {
   FontAwesome5,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import React, { useReducer, useCallback, useState } from "react";
+import React, { useReducer, useCallback, useState, useMemo } from "react";
 import { StyleSheet, ActivityIndicator, View, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Input from "../components/Input";
@@ -20,12 +20,29 @@ import {
 import { updateLoggedInUserData } from "../store/authSlice";
 import ProfileImage from "../components/ProfileImage";
 import { ScrollView } from "react-native";
+import DataItem from "../components/DataItem";
 
 const SettingsScreen = (props) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessMsg, setShowSuccessMsg] = useState(false);
+
   const userData = useSelector((state) => state.auth.userData);
+  const favoriteMessages = useSelector(
+    (state) => state.messages.favoriteMessages ?? {}
+  );
+  // cache the return values to reduce repetive calcs
+  const sortedFavoriteMessages = useMemo(() => {
+    let result = [];
+
+    const chats = Object.values(favoriteMessages);
+
+    chats.forEach((chat) => {
+      const chatMessages = Object.values(chat);
+      result = result.concat(chatMessages);
+    });
+    return result;
+  }, [favoriteMessages]);
 
   const firstName = userData.firstName || "";
   const lastName = userData.lastName || "";
@@ -170,6 +187,20 @@ const SettingsScreen = (props) => {
             )
           )}
         </View>
+
+        <DataItem
+          type={"link"}
+          title="Favorite messages"
+          hideImage={true}
+          onPress={() =>
+            props.navigation.navigate("DataList", {
+              title: "Favorite Messages",
+              data: sortedFavoriteMessages,
+              type: "messages",
+            })
+          }
+        />
+
         <SubmitButton
           title="LOG OUT"
           onPress={() => dispatch(userLogout())}
