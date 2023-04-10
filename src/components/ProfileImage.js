@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
@@ -13,7 +13,7 @@ import { updateSignedInUserData } from "../utils/actions/authActions";
 import { updateLoggedInUserData } from "../store/authSlice";
 import { useDispatch } from "react-redux";
 import { ActivityIndicator } from "react-native";
-import { updateChatData } from "../utils/actions/chatActions";
+import { sendInfoMessage, updateChatData } from "../utils/actions/chatActions";
 
 const ProfileImage = (props) => {
   const dispatch = useDispatch();
@@ -27,8 +27,7 @@ const ProfileImage = (props) => {
   const showRemoveButton =
     props.showRemoveButton && props.showRemoveButton === true;
 
-  const userId = props.userId;
-  const chatId = props.chatId;
+  const { userId, chatId } = props;
 
   const pickImage = async () => {
     try {

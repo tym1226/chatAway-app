@@ -17,6 +17,7 @@ import colors from "../constants/colors";
 import {
   addUsersToChat,
   removeUserFromChat,
+  sendInfoMessage,
   updateChatData,
 } from "../utils/actions/chatActions";
 import { validateInput } from "../utils/actions/formActions";
